@@ -16,7 +16,7 @@ struct ContentView: View {
                 NavigationLink(destination: CounterView(state: state)) {
                     Text("Counter Demo")
                 }
-                NavigationLink(destination: EmptyView()) {
+                NavigationLink(destination: FavoritePrimes(state: state)) {
                     Text("Favorite primes")
                 }
             }
@@ -33,6 +33,9 @@ class AppState: ObservableObject {
 struct CounterView: View {
     @ObservedObject var state: AppState
     @State var isPrimeModalShown = false
+    @State var alertNthPrime: Bool = false
+    @State var nthPrime: Int = 0
+    let service = Service()
     
     var body: some View {
         VStack {
@@ -59,7 +62,11 @@ struct CounterView: View {
             })
             
             Button(action: {
-                
+                service.nthPrime(state.count) { prime in
+                    guard let prime else { return }
+                    nthPrime = prime
+                    alertNthPrime = true
+                }
             }, label: {
                 Text("What is the \(ordinal(state.count)) prime?")
             })
@@ -68,6 +75,9 @@ struct CounterView: View {
         .navigationTitle("Counter demo")
         .sheet(isPresented: $isPrimeModalShown) {
             IsPrimeModalView(state: state)
+        }
+        .alert(isPresented: $alertNthPrime) {
+            Alert(title: Text("The \(ordinal(state.count)) prime is \(nthPrime)"))
         }
     }
 }
