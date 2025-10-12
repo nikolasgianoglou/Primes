@@ -17,12 +17,14 @@ struct IsPrimeModalView: View {
                 if state.favoritePrimes.contains(state.count) {
                     Button(action: {
                         state.favoritePrimes.removeAll(where: { $0 == state.count })
+                        state.activityFeed.append(.init(timestamp: Date(), type: .removedFavoritePrime(state.count)))
                     }, label: {
                         Text("Remove from primes list")
                 })
                 } else {
                     Button(action: {
                         state.favoritePrimes.append(state.count)
+                        state.activityFeed.append(.init(timestamp: Date(), type: .addedFavoritePrime(state.count)))
                     }, label: {
                         Text("Save to favorite primes")
                 })

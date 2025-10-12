@@ -25,16 +25,14 @@ struct ContentView: View {
     }
 }
 
-class AppState: ObservableObject {
-    @Published var count = 0
-    @Published var favoritePrimes: [Int] = []
-}
+
 
 struct CounterView: View {
     @ObservedObject var state: AppState
     @State var isPrimeModalShown = false
     @State var alertNthPrime: Bool = false
-    @State var nthPrime: Int = 0
+    @State var nthPrime: Int? = 0
+    @State var isNthPrimeButtonDisabled = false
     let service = Service()
     
     var body: some View {
@@ -62,14 +60,17 @@ struct CounterView: View {
             })
             
             Button(action: {
+                guard state.count > 0 else { return }
+                isNthPrimeButtonDisabled = true
                 service.nthPrime(state.count) { prime in
-                    guard let prime else { return }
+                    isNthPrimeButtonDisabled = false
                     nthPrime = prime
                     alertNthPrime = true
                 }
             }, label: {
                 Text("What is the \(ordinal(state.count)) prime?")
             })
+            .disabled(isNthPrimeButtonDisabled)
         }
         .font(.title)
         .navigationTitle("Counter demo")
@@ -77,7 +78,7 @@ struct CounterView: View {
             IsPrimeModalView(state: state)
         }
         .alert(isPresented: $alertNthPrime) {
-            Alert(title: Text("The \(ordinal(state.count)) prime is \(nthPrime)"))
+            Alert(title: Text("The \(ordinal(state.count)) prime is \(nthPrime!)"))
         }
     }
 }

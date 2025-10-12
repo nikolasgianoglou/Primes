@@ -17,7 +17,9 @@ struct FavoritePrimes: View {
           }
           .onDelete { indexSet in
               for index in indexSet {
+                  let prime = state.favoritePrimes[index]
                   state.favoritePrimes.remove(at: index)
+                  state.activityFeed.append(.init(timestamp: Date(), type: .removedFavoritePrime(prime)))
               }
           }
       }
