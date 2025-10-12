@@ -24,5 +24,6 @@ struct FavoritePrimes: View {
           }
       }
       .navigationBarTitle(Text("Favorite Primes"))
+      .listStyle(.plain)
   }
 }

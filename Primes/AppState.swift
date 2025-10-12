@@ -10,7 +10,8 @@ import Foundation
 class AppState: ObservableObject {
     @Published var count = 0
     @Published var favoritePrimes: [Int] = []
-    var activityFeed: [Activity] = []
+    @Published var loggedInUser: User?
+    @Published var activityFeed: [Activity] = []
     
     struct Activity {
       let timestamp: Date
@@ -20,6 +21,12 @@ class AppState: ObservableObject {
         case addedFavoritePrime(Int)
         case removedFavoritePrime(Int)
       }
+    }
+    
+    struct User {
+      let id: Int
+      let name: String
+      let bio: String
     }
 }
 
