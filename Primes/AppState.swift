@@ -38,34 +38,34 @@ final class Store<Value>: ObservableObject {
     }
 }
 
-//extension AppState {
-//  func addFavoritePrime() {
-//    self.favoritePrimes.append(self.count)
-//    self.activityFeed.append(
-//      Activity(
-//        timestamp: Date(),
-//        type: .addedFavoritePrime(self.count)
-//      )
-//    )
-//  }
-//
-//  func removeFavoritePrime(_ prime: Int) {
-//    self.favoritePrimes.removeAll(where: { $0 == prime })
-//    self.activityFeed.append(
-//      Activity(
-//        timestamp: Date(),
-//        type: .removedFavoritePrime(prime)
-//      )
-//    )
-//  }
-//
-//  func removeFavoritePrime() {
-//    self.removeFavoritePrime(self.count)
-//  }
-//
-//  func removeFavoritePrimes(at indexSet: IndexSet) {
-//    for index in indexSet {
-//      self.removeFavoritePrime(self.favoritePrimes[index])
-//    }
-//  }
-//}
+extension AppState {
+    mutating func addFavoritePrime() {
+        self.favoritePrimes.append(count)
+        self.activityFeed.append(
+            Activity(
+                timestamp: Date(),
+                type: .addedFavoritePrime(count)
+            )
+        )
+    }
+    
+    mutating func removeFavoritePrime(_ prime: Int) {
+        favoritePrimes.removeAll(where: { $0 == prime })
+        activityFeed.append(
+            Activity(
+                timestamp: Date(),
+                type: .removedFavoritePrime(prime)
+            )
+        )
+    }
+    
+    mutating func removeFavoritePrime() {
+        removeFavoritePrime(count)
+    }
+    
+    mutating func removeFavoritePrimes(at indexSet: IndexSet) {
+        for index in indexSet {
+            removeFavoritePrime(favoritePrimes[index])
+        }
+    }
+}
