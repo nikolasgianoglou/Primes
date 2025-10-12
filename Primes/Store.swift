@@ -23,20 +23,12 @@ enum CounterAction {
 func counterReducer(
   state: AppState, action: CounterAction
 ) -> AppState {
+  var copy = state
   switch action {
   case .decrTapped:
-    return AppState(
-      count: state.count - 1,
-      favoritePrimes: state.favoritePrimes,
-      loggedInUser: state.loggedInUser,
-      activityFeed: state.activityFeed
-    )
+    copy.count -= 1
   case .incrTapped:
-    return AppState(
-      count: state.count + 1,
-      favoritePrimes: state.favoritePrimes,
-      loggedInUser: state.loggedInUser,
-      activityFeed: state.activityFeed
-    )
+    copy.count += 1
   }
+  return copy
 }
