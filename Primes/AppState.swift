@@ -30,14 +30,6 @@ struct AppState {
     }
 }
 
-final class Store<Value>: ObservableObject {
-    @Published var value: Value
-    
-    init(value: Value) {
-        self.value = value
-    }
-}
-
 extension AppState {
     mutating func addFavoritePrime() {
         self.favoritePrimes.append(count)
