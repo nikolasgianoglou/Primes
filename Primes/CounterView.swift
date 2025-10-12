@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct CounterView: View {
-    @ObservedObject var state: AppState
+    @ObservedObject var store: Store<AppState>
     @State var isPrimeModalShown = false
     @State var alertNthPrime: Bool = false
     @State var nthPrime: Int? = 0
@@ -19,15 +19,15 @@ struct CounterView: View {
         VStack {
             HStack {
                 Button(action: {
-                    state.count -= 1
+                    store.value.count -= 1
                 }, label: {
                     Text("-")
                 })
                 
-                Text("\(state.count)")
+                Text("\(store.value.count)")
                 
                 Button(action: {
-                    state.count += 1
+                    store.value.count += 1
                 }, label: {
                     Text("+")
                 })
@@ -40,24 +40,24 @@ struct CounterView: View {
             })
             
             Button(action: nthPrimeButtonAction) {
-                Text("What is the \(ordinal(state.count)) prime?")
+                Text("What is the \(ordinal(store.value.count)) prime?")
             }
             .disabled(isNthPrimeButtonDisabled)
         }
         .font(.title)
         .navigationTitle("Counter demo")
         .sheet(isPresented: $isPrimeModalShown) {
-            IsPrimeModalView(state: state)
+            IsPrimeModalView(store: store)
         }
         .alert(isPresented: $alertNthPrime) {
-            Alert(title: Text("The \(ordinal(state.count)) prime is \(nthPrime ?? 0)"))
+            Alert(title: Text("The \(ordinal(store.value.count)) prime is \(nthPrime ?? 0)"))
         }
     }
     
     func nthPrimeButtonAction() {
-        guard state.count > 0 else { return }
+        guard store.value.count > 0 else { return }
         isNthPrimeButtonDisabled = true
-        service.nthPrime(state.count) { prime in
+        service.nthPrime(store.value.count) { prime in
             isNthPrimeButtonDisabled = false
             nthPrime = prime
             alertNthPrime = true

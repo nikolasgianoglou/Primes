@@ -9,19 +9,19 @@ import Foundation
 
 class FavoritePrimesState: ObservableObject {
 
-  private var state: AppState
+  private var store: Store<AppState>
     
-  init(state: AppState) {
-    self.state = state
+  init(store: Store<AppState>) {
+    self.store = store
   }
 
   var favoritePrimes: [Int] {
-    get { state.favoritePrimes }
-    set { state.favoritePrimes = newValue }
+    get { store.value.favoritePrimes }
+    set { store.value.favoritePrimes = newValue }
   }
 
   var activityFeed: [AppState.Activity] {
-    get { state.activityFeed }
-    set { state.activityFeed = newValue }
+    get { store.value.activityFeed }
+    set { store.value.activityFeed = newValue }
   }
 }
