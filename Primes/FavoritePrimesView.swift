@@ -16,7 +16,7 @@ struct FavoritePrimesView: View {
               Text("\(store.value.favoritePrimes[index])")
           }
           .onDelete { indexSet in
-              store.send(.favotirePrimes(.deleteFavoritePrimes(indexSet)))
+              store.send(.favoritePrimes(.removeFavoritePrimes(indexSet)))
           }
       }
       .navigationBarTitle(Text("Favorite Primes"))

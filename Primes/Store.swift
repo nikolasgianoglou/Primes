@@ -30,37 +30,119 @@ enum CounterAction {
 }
 
 enum PrimeModalAction {
-    case saveFavoritePrimeTapped
-    case removeFavoritePrimeTapped
+    case addFavoritePrime
+    case removeFavoritePrime
 }
 
 enum AppAction {
     case counter(CounterAction)
     case primeModal(PrimeModalAction)
-    case favotirePrimes(FavoritePrimesAction)
+    case favoritePrimes(FavoritePrimesAction)
 }
 
 enum FavoritePrimesAction {
-  case deleteFavoritePrimes(IndexSet)
+  case removeFavoritePrimes(IndexSet)
 }
 
-func appReducer(state: inout AppState, action: AppAction) {
+//func appReducer(state: inout AppState, action: AppAction) {
+//    switch action {
+//    case .counter(.decrTapped):
+//        state.count -= 1
+//        
+//    case .counter(.incrTapped):
+//        state.count += 1
+//        
+//    case .primeModal(.addFavoritePrime):
+//        state.favoritePrimes.append(state.count)
+//        state.activityFeed.append(.init(timestamp: Date(), type: .addedFavoritePrime(state.count)))
+//        
+//    case .primeModal(.removeFavoritePrime):
+//        state.favoritePrimes.removeAll(where: { $0 == state.count })
+//        state.activityFeed.append(.init(timestamp: Date(), type: .removedFavoritePrime(state.count)))
+//        
+//    case let .favoritePrimes(.removeFavoritePrimes(indexSet)):
+//        for index in indexSet {
+//            let prime = state.favoritePrimes[index]
+//            state.favoritePrimes.remove(at: index)
+//            state.activityFeed.append(.init(timestamp: Date(), type: .removedFavoritePrime(prime)))
+//        }
+//    }
+//}
+
+let appReducer = combine(
+  combine(counterReducer, primeModalReducer),
+  favoritePrimesReducer
+)
+
+func combine<Value, Action>(
+  _ first: @escaping (inout Value, Action) -> Void,
+  _ second: @escaping (inout Value, Action) -> Void
+) -> (inout Value, Action) -> Void {
+
+  return { value, action in
+    first(&value, action)
+    second(&value, action)
+  }
+}
+
+func counterReducer(
+    value: inout AppState, action: AppAction
+) -> Void {
     switch action {
     case .counter(.decrTapped):
-        state.count -= 1
+        value.count -= 1
+        
     case .counter(.incrTapped):
-        state.count += 1
-    case .primeModal(.saveFavoritePrimeTapped):
-        state.favoritePrimes.append(state.count)
-        state.activityFeed.append(.init(timestamp: Date(), type: .addedFavoritePrime(state.count)))
-    case .primeModal(.removeFavoritePrimeTapped):
-        state.favoritePrimes.removeAll(where: { $0 == state.count })
-        state.activityFeed.append(.init(timestamp: Date(), type: .removedFavoritePrime(state.count)))
-    case let .favotirePrimes(.deleteFavoritePrimes(indexSet)):
-        for index in indexSet {
-            let prime = state.favoritePrimes[index]
-            state.favoritePrimes.remove(at: index)
-            state.activityFeed.append(.init(timestamp: Date(), type: .removedFavoritePrime(prime)))
-        }
+        value.count += 1
+        
+    default:
+        break
     }
+}
+
+func primeModalReducer(
+  state: inout AppState, action: AppAction
+) -> Void {
+  switch action {
+  case .primeModal(.addFavoritePrime):
+    state.favoritePrimes.append(state.count)
+    state.activityFeed.append(
+      .init(
+        timestamp: Date(),
+        type: .addedFavoritePrime(state.count)
+      )
+    )
+
+  case .primeModal(.removeFavoritePrime):
+    state.favoritePrimes.removeAll(where: { $0 == state.count })
+    state.activityFeed.append(
+      .init(
+        timestamp: Date(),
+        type: .removedFavoritePrime(state.count)
+      )
+    )
+
+  default:
+    break
+  }
+}
+
+func favoritePrimesReducer(
+  state: inout AppState, action: AppAction
+) -> Void {
+  switch action {
+  case let .favoritePrimes(.removeFavoritePrimes(indexSet)):
+    for index in indexSet {
+      state.activityFeed.append(
+        .init(
+          timestamp: Date(),
+          type: .removedFavoritePrime(state.favoritePrimes[index])
+        )
+      )
+      state.favoritePrimes.remove(at: index)
+    }
+
+  default:
+    break
+  }
 }

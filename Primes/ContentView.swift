@@ -27,5 +27,5 @@ struct ContentView: View {
 }
 
 #Preview {
-    ContentView(store: Store(value: AppState(), reducer: appReducer(state:action:)))
+    ContentView(store: Store(value: AppState(), reducer: appReducer))
 }
