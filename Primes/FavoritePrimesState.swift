@@ -9,9 +9,9 @@ import Foundation
 
 class FavoritePrimesState: ObservableObject {
 
-  private var store: Store<AppState, CounterAction>
+  private var store: Store<AppState, AppAction>
     
-  init(store: Store<AppState, CounterAction>) {
+  init(store: Store<AppState, AppAction>) {
     self.store = store
   }
 

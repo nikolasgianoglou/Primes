@@ -25,17 +25,27 @@ final class Store<Value, Action>: ObservableObject {
 }
 
 enum CounterAction {
-  case decrTapped
-  case incrTapped
+    case decrTapped
+    case incrTapped
+}
+enum PrimeModalAction {
+    case saveFavoritePrimeTapped
+    case removeFavoritePrimeTapped
+}
+enum AppAction {
+    case counter(CounterAction)
+    case primeModal(PrimeModalAction)
 }
 
-func counterReducer(
-  state: inout AppState, action: CounterAction
-) {
-  switch action {
-  case .decrTapped:
-      state.count -= 1
-  case .incrTapped:
-      state.count += 1
-  }
+func appReducer(state: inout AppState, action: AppAction) {
+    switch action {
+    case .counter(.decrTapped):
+        state.count -= 1
+    case .counter(.incrTapped):
+        state.count += 1
+    case .primeModal(.saveFavoritePrimeTapped):
+        fatalError()
+    case .primeModal(.removeFavoritePrimeTapped):
+        fatalError()
+    }
 }
