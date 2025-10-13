@@ -16,15 +16,13 @@ struct IsPrimeModalView: View {
                 Text("\(store.value.count) is prime!!!! ✅")
                 if store.value.favoritePrimes.contains(store.value.count) {
                     Button(action: {
-                        store.value.favoritePrimes.removeAll(where: { $0 == store.value.count })
-                        store.value.activityFeed.append(.init(timestamp: Date(), type: .removedFavoritePrime(store.value.count)))
+                        store.send(.primeModal(.removeFavoritePrimeTapped))
                     }, label: {
                         Text("Remove from primes list")
                 })
                 } else {
                     Button(action: {
-                        store.value.favoritePrimes.append(store.value.count)
-                        store.value.activityFeed.append(.init(timestamp: Date(), type: .addedFavoritePrime(store.value.count)))
+                        store.send(.primeModal(.saveFavoritePrimeTapped))
                     }, label: {
                         Text("Save to favorite primes")
                 })

@@ -28,13 +28,20 @@ enum CounterAction {
     case decrTapped
     case incrTapped
 }
+
 enum PrimeModalAction {
     case saveFavoritePrimeTapped
     case removeFavoritePrimeTapped
 }
+
 enum AppAction {
     case counter(CounterAction)
     case primeModal(PrimeModalAction)
+    case favotirePrimes(FavoritePrimesAction)
+}
+
+enum FavoritePrimesAction {
+  case deleteFavoritePrimes(IndexSet)
 }
 
 func appReducer(state: inout AppState, action: AppAction) {
@@ -44,8 +51,16 @@ func appReducer(state: inout AppState, action: AppAction) {
     case .counter(.incrTapped):
         state.count += 1
     case .primeModal(.saveFavoritePrimeTapped):
-        fatalError()
+        state.favoritePrimes.append(state.count)
+        state.activityFeed.append(.init(timestamp: Date(), type: .addedFavoritePrime(state.count)))
     case .primeModal(.removeFavoritePrimeTapped):
-        fatalError()
+        state.favoritePrimes.removeAll(where: { $0 == state.count })
+        state.activityFeed.append(.init(timestamp: Date(), type: .removedFavoritePrime(state.count)))
+    case let .favotirePrimes(.deleteFavoritePrimes(indexSet)):
+        for index in indexSet {
+            let prime = state.favoritePrimes[index]
+            state.favoritePrimes.remove(at: index)
+            state.activityFeed.append(.init(timestamp: Date(), type: .removedFavoritePrime(prime)))
+        }
     }
 }

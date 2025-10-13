@@ -7,20 +7,16 @@
 
 import SwiftUI
 
-struct FavoritePrimes: View {
-    @ObservedObject var state: FavoritePrimesState
+struct FavoritePrimesView: View {
+    @ObservedObject var store: Store<AppState, AppAction>
 
   var body: some View {
       List {
-          ForEach(state.favoritePrimes.indices, id: \.self) { index in
-              Text("\(state.favoritePrimes[index])")
+          ForEach(store.value.favoritePrimes.indices, id: \.self) { index in
+              Text("\(store.value.favoritePrimes[index])")
           }
           .onDelete { indexSet in
-              for index in indexSet {
-                  let prime = state.favoritePrimes[index]
-                  state.favoritePrimes.remove(at: index)
-                  state.activityFeed.append(.init(timestamp: Date(), type: .removedFavoritePrime(prime)))
-              }
+              store.send(.favotirePrimes(.deleteFavoritePrimes(indexSet)))
           }
       }
       .navigationBarTitle(Text("Favorite Primes"))
