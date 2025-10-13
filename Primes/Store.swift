@@ -8,19 +8,19 @@
 import Foundation
 
 final class Store<Value, Action>: ObservableObject {
-    let reducer: (Value, Action) -> Value
+    let reducer: (inout Value, Action) -> Void
     @Published var value: Value
     
     init(
         value: Value,
-        reducer: @escaping (Value, Action) -> Value
+        reducer: @escaping (inout Value, Action) -> Void
     ) {
         self.value = value
         self.reducer = reducer
     }
     
     func send(_ action: Action) {
-      value = self.reducer(self.value, action)
+      reducer(&value, action)
     }
 }
 
@@ -30,14 +30,12 @@ enum CounterAction {
 }
 
 func counterReducer(
-  state: AppState, action: CounterAction
-) -> AppState {
-  var copy = state
+  state: inout AppState, action: CounterAction
+) {
   switch action {
   case .decrTapped:
-    copy.count -= 1
+      state.count -= 1
   case .incrTapped:
-    copy.count += 1
+      state.count += 1
   }
-  return copy
 }
