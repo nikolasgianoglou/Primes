@@ -45,10 +45,32 @@ enum FavoritePrimesAction {
 }
 
 let appReducer = combine(
-  counterReducer,
-  primeModalReducer,
-  favoritePrimesReducer
+    pullback(counterReducer, value: \.count),//pullback(counterReducer, get: { $0.count }, set: { $0.count = $1 }),
+    primeModalReducer,
+    favoritePrimesReducer
 )
+
+func pullback<LocalValue, GlobalValue, Action>(
+  _ reducer: @escaping (inout LocalValue, Action) -> Void,
+  value: WritableKeyPath<GlobalValue, LocalValue>
+) -> (inout GlobalValue, Action) -> Void {
+  return { globalValue, action in
+    reducer(&globalValue[keyPath: value], action)
+  }
+}
+
+func pullback<LocalValue, GlobalValue, Action>(
+  _ reducer: @escaping (inout LocalValue, Action) -> Void,
+  get: @escaping (GlobalValue) -> LocalValue,
+  set: @escaping (inout GlobalValue, LocalValue) -> Void
+) -> (inout GlobalValue, Action) -> Void {
+
+  return  { globalValue, action in
+    var localValue = get(globalValue)
+    reducer(&localValue, action)
+    set(&globalValue, localValue)
+  }
+}
 
 func combine<Value, Action>(
   _ reducers: (inout Value, Action) -> Void...
@@ -62,14 +84,14 @@ func combine<Value, Action>(
 }
 
 func counterReducer(
-    value: inout AppState, action: AppAction
+    state: inout Int, action: AppAction
 ) -> Void {
     switch action {
     case .counter(.decrTapped):
-        value.count -= 1
+        state -= 1
         
     case .counter(.incrTapped):
-        value.count += 1
+        state += 1
         
     default:
         break
@@ -124,6 +146,14 @@ func favoritePrimesReducer(
 }
 
 
+
+
+
+
+
+/*
+ It’s responsible for combining the current state of our entire application with any user action by performing the appropriate mutation to state. It’s handling three different screens and five different user actions. This function is already getting pretty long! As we get more and more screens, this function is going to get gigantic.
+ */
 //func appReducer(state: inout AppState, action: AppAction) {
 //    switch action {
 //    case .counter(.decrTapped):
