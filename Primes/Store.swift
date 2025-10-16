@@ -47,9 +47,9 @@ enum FavoritePrimesAction {
 let appReducer = combine(
     pullback(counterReducer, value: \.count),//pullback(counterReducer, get: { $0.count }, set: { $0.count = $1 }),
     primeModalReducer,
-    favoritePrimesReducer
+    pullback(favoritePrimesReducer, value: \.favoritePrimesState)
 )
-
+//New
 func pullback<LocalValue, GlobalValue, Action>(
   _ reducer: @escaping (inout LocalValue, Action) -> Void,
   value: WritableKeyPath<GlobalValue, LocalValue>
@@ -58,7 +58,7 @@ func pullback<LocalValue, GlobalValue, Action>(
     reducer(&globalValue[keyPath: value], action)
   }
 }
-
+//Old
 func pullback<LocalValue, GlobalValue, Action>(
   _ reducer: @escaping (inout LocalValue, Action) -> Void,
   get: @escaping (GlobalValue) -> LocalValue,
@@ -125,8 +125,28 @@ func primeModalReducer(
   }
 }
 
+struct FavoritePrimesState {
+  var favoritePrimes: [Int]
+  var activityFeed: [AppState.Activity]
+}
+
+extension AppState {
+  var favoritePrimesState: FavoritePrimesState {
+    get {
+        FavoritePrimesState(
+        favoritePrimes: self.favoritePrimes,
+        activityFeed: self.activityFeed
+      )
+    }
+    set(newValue) {
+      self.activityFeed = newValue.activityFeed
+      self.favoritePrimes = newValue.favoritePrimes
+    }
+  }
+}
+
 func favoritePrimesReducer(
-  state: inout AppState, action: AppAction
+  state: inout FavoritePrimesState, action: AppAction
 ) -> Void {
   switch action {
   case let .favoritePrimes(.removeFavoritePrimes(indexSet)):

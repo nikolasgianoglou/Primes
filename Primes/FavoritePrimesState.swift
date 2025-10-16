@@ -7,21 +7,21 @@
 
 import Foundation
 
-class FavoritePrimesState: ObservableObject {
-
-  private var store: Store<AppState, AppAction>
-    
-  init(store: Store<AppState, AppAction>) {
-    self.store = store
-  }
-
-  var favoritePrimes: [Int] {
-    get { store.value.favoritePrimes }
-    set { store.value.favoritePrimes = newValue }
-  }
-
-  var activityFeed: [AppState.Activity] {
-    get { store.value.activityFeed }
-    set { store.value.activityFeed = newValue }
-  }
-}
+//class FavoritePrimesState: ObservableObject {
+//
+//  private var store: Store<AppState, AppAction>
+//    
+//  init(store: Store<AppState, AppAction>) {
+//    self.store = store
+//  }
+//
+//  var favoritePrimes: [Int] {
+//    get { store.value.favoritePrimes }
+//    set { store.value.favoritePrimes = newValue }
+//  }
+//
+//  var activityFeed: [AppState.Activity] {
+//    get { store.value.activityFeed }
+//    set { store.value.activityFeed = newValue }
+//  }
+//}
