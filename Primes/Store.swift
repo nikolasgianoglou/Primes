@@ -38,26 +38,73 @@ enum AppAction {
     case counter(CounterAction)
     case primeModal(PrimeModalAction)
     case favoritePrimes(FavoritePrimesAction)
-}
+    
+    var counter: CounterAction? {
+        get {
+            guard case let .counter(value) = self else { return nil }
+            return value
+        }
+        set {
+            guard case .counter = self, let newValue else { return }
+            self = .counter(newValue)
+        }
+    }
+    var primeModal: PrimeModalAction? {
+        get {
+            guard case let .primeModal(value) = self else { return nil}
+            return value
+        }
+        set {
+            guard case .primeModal = self, let newValue else { return }
+            self = .primeModal(newValue)
+        }
+    }
+    var favoritePrimes: FavoritePrimesAction? {
+        get {
+            guard case let .favoritePrimes(value) = self else { return nil }
+            return value
+        }
+        set {
+            guard case .favoritePrimes = self, let newValue else { return }
+            self = .favoritePrimes(newValue)
+        }
+    }
+} /*/        \AppAction.counter -> WritableKeyPath<AppAction, CounterAction?>     */
 
 enum FavoritePrimesAction {
   case removeFavoritePrimes(IndexSet)
 }
 
-let appReducer = combine(
-    pullback(counterReducer, value: \.count),//pullback(counterReducer, get: { $0.count }, set: { $0.count = $1 }),
-    primeModalReducer,
-    pullback(favoritePrimesReducer, value: \.favoritePrimesState)
+let appReducer: (inout AppState, AppAction) -> Void = combine(
+    pullback(counterReducer, value: \.count, action: \.counter),           //pullback(counterReducer, get: { $0.count }, set: { $0.count = $1 }),
+    pullback(primeModalReducer, value: \.self, action: \.primeModal),
+    pullback(favoritePrimesReducer, value: \.favoritePrimesState, action: \.favoritePrimes)
 )
 //New
-func pullback<LocalValue, GlobalValue, Action>(
-  _ reducer: @escaping (inout LocalValue, Action) -> Void,
-  value: WritableKeyPath<GlobalValue, LocalValue>
-) -> (inout GlobalValue, Action) -> Void {
-  return { globalValue, action in
-    reducer(&globalValue[keyPath: value], action)
-  }
+func pullback<LocalValue, GlobalValue, LocalAction, GlobalAction>(
+    _ reducer: @escaping (inout LocalValue, LocalAction) -> Void,
+    value: WritableKeyPath<GlobalValue, LocalValue>,
+    action: WritableKeyPath<GlobalAction, LocalAction?>
+) -> (inout GlobalValue, GlobalAction) -> Void {
+    return { globalValue, globalAction in
+        guard let localAction = globalAction[keyPath: action] else  { return }
+        reducer(&globalValue[keyPath: value], localAction)
+    }
 }
+
+
+func pullback<Value, LocalAction, GlobalAction>(
+    _ reducer: @escaping (inout Value, LocalAction) -> Void,
+    action: WritableKeyPath<GlobalAction, LocalAction?>
+) -> (inout Value, GlobalAction) -> Void {
+    return { value, globalAction in
+        guard let localAction = globalAction[keyPath: action] else  { return }
+        reducer (&value, localAction)
+    }
+}
+
+
+
 //Old
 func pullback<LocalValue, GlobalValue, Action>(
   _ reducer: @escaping (inout LocalValue, Action) -> Void,
@@ -84,25 +131,22 @@ func combine<Value, Action>(
 }
 
 func counterReducer(
-    state: inout Int, action: AppAction
+    state: inout Int, action: CounterAction
 ) -> Void {
     switch action {
-    case .counter(.decrTapped):
+    case .decrTapped:
         state -= 1
         
-    case .counter(.incrTapped):
+    case .incrTapped:
         state += 1
-        
-    default:
-        break
     }
 }
 
 func primeModalReducer(
-  state: inout AppState, action: AppAction
+    state: inout AppState, action: PrimeModalAction
 ) -> Void {
   switch action {
-  case .primeModal(.addFavoritePrime):
+  case .addFavoritePrime:
     state.favoritePrimes.append(state.count)
     state.activityFeed.append(
       .init(
@@ -111,7 +155,7 @@ func primeModalReducer(
       )
     )
 
-  case .primeModal(.removeFavoritePrime):
+  case .removeFavoritePrime:
     state.favoritePrimes.removeAll(where: { $0 == state.count })
     state.activityFeed.append(
       .init(
@@ -130,26 +174,11 @@ struct FavoritePrimesState {
   var activityFeed: [AppState.Activity]
 }
 
-extension AppState {
-  var favoritePrimesState: FavoritePrimesState {
-    get {
-        FavoritePrimesState(
-        favoritePrimes: self.favoritePrimes,
-        activityFeed: self.activityFeed
-      )
-    }
-    set(newValue) {
-      self.activityFeed = newValue.activityFeed
-      self.favoritePrimes = newValue.favoritePrimes
-    }
-  }
-}
-
 func favoritePrimesReducer(
-  state: inout FavoritePrimesState, action: AppAction
+    state: inout FavoritePrimesState, action: FavoritePrimesAction
 ) -> Void {
   switch action {
-  case let .favoritePrimes(.removeFavoritePrimes(indexSet)):
+  case let .removeFavoritePrimes(indexSet):
     for index in indexSet {
       state.activityFeed.append(
         .init(
@@ -159,9 +188,6 @@ func favoritePrimesReducer(
       )
       state.favoritePrimes.remove(at: index)
     }
-
-  default:
-    break
   }
 }
 

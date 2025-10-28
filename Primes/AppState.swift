@@ -61,3 +61,18 @@ extension AppState {
         }
     }
 }
+
+extension AppState {
+  var favoritePrimesState: FavoritePrimesState {
+    get {
+        FavoritePrimesState(
+        favoritePrimes: self.favoritePrimes,
+        activityFeed: self.activityFeed
+      )
+    }
+    set(newValue) {
+      self.activityFeed = newValue.activityFeed
+      self.favoritePrimes = newValue.favoritePrimes
+    }
+  }
+}
